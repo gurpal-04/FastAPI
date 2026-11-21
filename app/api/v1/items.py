@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from uuid import UUID, uuid4
 
 from ...db import read_db, write_db
@@ -28,7 +28,7 @@ def get_item(item_id: UUID):
     for task in tasks:
         if task.get("id") == str(item_id):
             return task
-    return {"message": "Item not found"}
+    raise HTTPException(status_code=404, detail="Item not found")
 
 @router.put("/{item_id}", response_model=ResponseModel)
 def update_item(item_id: UUID, updated_item: ItemUpdate):
@@ -38,7 +38,7 @@ def update_item(item_id: UUID, updated_item: ItemUpdate):
             tasks[index].update(updated_item.dict(exclude_unset=True))
             write_db(tasks)
             return {"message": "Item updated successfully", "data": tasks[index]}
-    return {"message": "Item not found"}
+    raise HTTPException(status_code=404, detail="Item not found")
 
 @router.delete("/{item_id}", response_model=ResponseModel)
 def delete_item(item_id: UUID):
@@ -48,4 +48,4 @@ def delete_item(item_id: UUID):
             deleted_task = tasks.pop(index)
             write_db(tasks)
             return {"message": "Item deleted successfully", "data": deleted_task}
-    return {"message": "Item not found"}
+    raise HTTPException(status_code=404, detail="Item not found")
