@@ -1,6 +1,6 @@
 # FastAPI Items API
 
-A small REST API built with FastAPI for creating and managing items. Items are stored locally in `app/db/tasks.json`.
+A REST API built with FastAPI for creating and managing items. Items are stored in a local SQLite database (`items.db`) through SQLAlchemy.
 
 ## Features
 
@@ -15,6 +15,7 @@ A small REST API built with FastAPI for creating and managing items. Items are s
 - Python 3.10 or later
 - FastAPI
 - Uvicorn
+- SQLAlchemy
 - pytest
 - httpx
 
@@ -25,7 +26,7 @@ From the project directory:
 ```bash
 python -m venv venv
 source venv/bin/activate
-python -m pip install fastapi uvicorn pytest httpx
+python -m pip install fastapi uvicorn sqlalchemy pytest httpx
 ```
 
 On Windows, activate the virtual environment with:
@@ -106,17 +107,18 @@ curl http://127.0.0.1:8000/api/v1/items/
 pytest
 ```
 
-Tests use a temporary JSON database file, so they do not modify `app/db/tasks.json`.
+Tests run against the API through FastAPI's `TestClient`. Be aware that API tests that create items use the configured SQLite database unless the test suite redirects or replaces the database session.
 
 ## Project Structure
 
 ```text
 app/
-  main.py                 # FastAPI application and root routes
+  main.py                 # FastAPI application and startup configuration
   api/v1/items.py         # Item CRUD routes
-  db/db.py                # JSON file database helpers
-  db/tasks.json           # Local item data
-  models/items.py         # Pydantic request and response models
+  db/database.py          # SQLite engine and database session
+  models/items.py         # SQLAlchemy Item model
+  schemas/item_schema.py  # Pydantic request and response schemas
 tests/
   test_items.py           # API tests
+items.db                  # SQLite database (created automatically)
 ```
